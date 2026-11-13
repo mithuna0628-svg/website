@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blood Donor Finder</title>
+
+<style>
+:root{--red:#c62828;--dark:#8e1717;--light:#fff3f3;--ink:#263238;--muted:#667085;--line:#ead1d1}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fffafa;color:var(--ink);line-height:1.6}
+header{background:var(--red);color:white;padding:16px 5%;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:0 3px 12px #0002}
+header h1{font-size:22px;margin:0}
+header span{font-size:13px}
+nav{background:#fff;position:sticky;top:0;z-index:10;display:flex;gap:8px;overflow-x:auto;padding:10px 4%;border-bottom:1px solid var(--line)}
+nav button{white-space:nowrap;border:1px solid var(--line);background:white;color:var(--dark);padding:8px 12px;border-radius:20px;cursor:pointer}
+nav button.active,nav button:hover{background:var(--red);color:white}
+main{max-width:1100px;margin:25px auto;padding:0 18px 100px}
+.page-section{display:none;background:white;padding:clamp(18px,4vw,36px);border:1px solid var(--line);border-radius:16px;box-shadow:0 5px 22px #7c22220c;min-height:65vh}
+.page-section.active{display:block}
+h2{color:var(--dark);margin-top:0}
+h3{color:#9f2020}
+.hero{text-align:center;padding:50px 10px;background:linear-gradient(135deg,#fff0f0,#fff);border-radius:14px}
+.hero .drop{font-size:64px}
+.hero h2{font-size:clamp(28px,5vw,44px)}
+p.lead{font-size:18px;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin:18px 0}
+.card{background:#fff8f8;border:1px solid var(--line);padding:18px;border-radius:12px}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;align-items:end}
+label{display:block;font-weight:bold;margin-bottom:5px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #c9b5b5;border-radius:8px;font:inherit;background:white}
+input[type=radio],input[type=checkbox]{width:auto}
+.inline-options{display:flex;gap:14px;flex-wrap:wrap;padding:8px 0}
+.inline-options label{font-weight:normal}
+button,.btn{background:var(--red);color:white;border:0;padding:11px 17px;border-radius:8px;cursor:pointer;font-size:15px}
+button:hover,.btn:hover{background:var(--dark)}
+.secondary{background:#6b7280}
+.danger{background:#a61b1b}
+.full{grid-column:1/-1}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+table{width:100%;border-collapse:collapse;margin:14px 0;background:white}
+th,td{border:1px solid #d8bcbc;padding:10px;text-align:left}
+th{background:#ffe8e8;color:#762020}
+.table-wrap{overflow-x:auto}
+.small{font-size:13px;color:var(--muted)}
+.notice{padding:12px 15px;background:#fff4d9;border-left:4px solid #d99b22;border-radius:6px;margin:16px 0}
+.success{padding:12px;background:#eaf7ee;border-left:4px solid #31965a;border-radius:6px;margin:12px 0}
+.error{color:#b42318}
+.lab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
+.lab-box{border:1px solid var(--line);padding:15px;border-radius:10px;background:#fffafa;min-width:0}
+.demo-image{width:100%;height:150px;object-fit:cover;border-radius:8px;background:#ffe1e1}
+.flex-demo{display:flex;gap:10px;flex-wrap:wrap}
+.flex-demo div{background:#ffe1e1;padding:14px;flex:1;text-align:center;border-radius:7px}
+.grid-demo{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.grid-demo div{background:#ffe1e1;padding:16px;text-align:center;border-radius:7px}
+.grid-demo .wide{grid-column:span 2}
+.moving{position:relative;width:100%;height:120px;background:#fff0f0;border-radius:8px;overflow:hidden}
+.moving div{position:absolute;left:45%;top:0;background:var(--red);color:white;padding:8px;border-radius:6px;animation:topToBottom 3s infinite alternate}
+@keyframes topToBottom{from{top:0}to{top:75px}}
+footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:10px 4%;display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:20}
+footer .progress{font-size:13px;color:var(--muted);text-align:center;flex:1}
+footer button:disabled{opacity:.4;cursor:not-allowed}
+.code-note{font-family:monospace;background:#f4eeee;padding:2px 5px;border-radius:4px}
+@media(max-width:600px){
+header{padding:13px}
+header h1{font-size:18px}
+main{padding:0 10px 90px}
+.page-section{padding:16px}
+footer button{padding:9px 11px;font-size:13px}
+.grid-demo{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🩸 Blood Donor Finder</h1>
+<span>Awareness • Registration • Learning Lab</span>
+</header>
+
+<nav id="topNav" aria-label="Website navigation">
+<button onclick="goTo(0)">Home</button>
+<button onclick="goTo(1)">Importance</button>
+<button onclick="goTo(2)">About</button>
+<button onclick="goTo(3)">Hospitals</button>
+<button onclick="goTo(4)">Blood Banks</button>
+<button onclick="goTo(5)">Register</button>
+<button onclick="goTo(6)">Donor List</button>
+<button onclick="goTo(7)">Requests</button>
+<button onclick="goTo(8)">Camps</button>
+<button onclick="goTo(9)">HTML Lab</button>
+<button onclick="goTo(10)">CSS Lab</button>
+<button onclick="goTo(11)">JavaScript</button>
+<button onclick="goTo(12)">Mini Projects</button>
+<button onclick="goTo(13)">Thank You</button>
+</nav>
+
+<main>
+
+<!-- HOME PAGE -->
+<section class="page-section active" id="home">
+<div class="hero">
+<div class="drop">🩸</div>
+<p>A small donation can make a big difference</p>
+<h2>Blood Donor Finder</h2>
+<p class="lead">Find demo donor profiles, learn about blood donation, and understand how a donor finder website works.</p>
+<button onclick="goTo(1)">Get Started →</button>
+</div>
+
+<div class="notice">Student project demonstration only. This is not an emergency service or a live blood availability system.</div>
+
+<h3>Website Sections</h3>
+<ul>
+<li>Learn about blood donation</li>
+<li>View hospital and blood bank reference information</li>
+<li>Register and search demo donor profiles</li>
+<li>Explore HTML, CSS and JavaScript practical topics</li>
+</ul>
+</section>
+
+<!-- IMPORTANCE PAGE -->
+<section class="page-section" id="importance">
+<h2>Why Is Blood Donation Important?</h2>
+
+<div class="cards">
+<div class="card">
+<h3>❤️ Saves Lives</h3>
+<p>Donated blood can help patients during emergencies and medical treatment.</p>
+</div>
+
+<div class="card">
+<h3>🏥 Helps Patients</h3>
+<p>Hospitals need a safe blood supply for different medical needs.</p>
+</div>
+
+<div class="card">
+<h3>🤝 Supports Others</h3>
+<p>Voluntary donation is one way to support people in our community.</p>
+</div>
+</div>
+
+<p>Blood donation supports healthcare services. Blood is collected, tested and handled by trained professionals.</p>
+
+<div class="notice">Eligibility and donation frequency must always be confirmed by a qualified medical professional or authorised blood bank. This student website does not assess eligibility.</div>
+</section>
+
+<!-- ABOUT PAGE -->
+<section class="page-section" id="about">
+<h2>About Blood Donation</h2>
+
+<h3>What is blood donation?</h3>
+<p>Blood donation is the process of giving blood at an approved blood donation centre. The collected blood is tested and handled by trained professionals.</p>
+
+<h3>Who can donate?</h3>
+<p>Eligibility depends on age, health, weight, medical history and local rules. A qualified medical professional must confirm eligibility.</p>
+
+<h3>What are the blood groups?</h3>
+<p>The main blood groups are A+, A-, B+, B-, AB+, AB-, O+ and O-.</p>
+
+<h3>Responsible use</h3>
+<p>Never rely on an online demo list to decide medical compatibility or availability. Contact an authorised service.</p>
+</section>
+
+<!-- HOSPITAL PAGE -->
+<section class="page-section" id="hospitals">
+<h2>Hospitals in Tamil Nadu</h2>
+<p>Select a district to see a project reference. Confirm current addresses and services directly with the hospital.</p>
+
+<label for="hospitalDistrict">Select District</label>
+<select id="hospitalDistrict" onchange="showHospital()">
+<option value="">Select</option>
+<option>Chennai</option>
+<option>Coimbatore</option>
+<option>Madurai</option>
+<option>Tiruchirappalli</option>
+<option>Salem</option>
+<option>Tirunelveli</option>
+</select>
+
+<div id="hospitalResult" class="card">Choose a district to view information.</div>
+
+<h3>Some major government hospitals</h3>
+<ul>
+<li>Rajiv Gandhi Government General Hospital – Chennai</li>
+<li>Coimbatore Medical College Hospital – Coimbatore</li>
+<li>Government Rajaji Hospital – Madurai</li>
+<li>Mahatma Gandhi Memorial Government Hospital – Tiruchirappalli</li>
+<li>Government Mohan Kumaramangalam Medical College Hospital – Salem</li>
+<li>Tirunelveli Medical College Hospital – Tirunelveli</li>
+</ul>
+
+<p class="small">This is a project reference list, not a live hospital directory. Verify details through official hospital sources.</p>
+</section>
+
+<!-- BLOOD BANK PAGE -->
+<section class="page-section" id="bloodbanks">
+<h2>Blood Bank Information</h2>
+<p>Blood availability changes frequently. Contact an authorised blood bank or hospital to confirm availability.</p>
+
+<label for="bankDistrict">Select District</label>
+<select id="bankDistrict" onchange="showBank()">
+<option value="">Select</option>
+<option>Chennai</option>
+<option>Coimbatore</option>
+<option>Madurai</option>
+<option>Tiruchirappalli</option>
+<option>Salem</option>
+<option>Tirunelveli</option>
+</select>
+
+<div id="bankResult" class="card">Choose a district for guidance.</div>
+
+<div class="notice">This website does not check live blood stock. Always contact an authorised blood bank directly for current availability and compatibility guidance.</div>
+</section>
+
+<!-- DONOR REGISTRATION PAGE -->
+<section class="page-section" id="register">
+<h2>Donor Registration</h2>
+<p>Register a fictional demo donor profile for this project. Do not enter real personal or contact details.</p>
+
+<form id="donorForm">
+
+<div>
+<label for="donorName">Donor Name</label>
+<input id="donorName" required maxlength="50" placeholder="Enter demo name">
+</div>
+
+<div>
+<label for="donorAge">Age</label>
+<input id="donorAge" type="number" min="18" max="100" required placeholder="18 or above">
+</div>
+
+<div>
+<label for="donorDate">Registration Date</label>
+<input id="donorDate" type="date" required>
+</div>
+
+<div>
+<label for="donorBlood">Blood Group</label>
+<select id="donorBlood" required>
+<option value="">Select</option>
+<option>A+</option>
+<option>A-</option>
+<option>B+</option>
+<option>B-</option>
+<option>AB+</option>
+<option>AB-</option>
+<option>O+</option>
+<option>O-</option>
+</select>
+</div>
+
+<div>
+<label for="donorDistrict">District</label>
+<select id="donorDistrict" required>
+<option value="">Select district</option>
+<option>Chennai</option>
+<option>Coimbatore</option>
+<option>Madurai</option>
+<option>Tiruchirappalli</option>
+<option>Salem</option>
+<option>Tirunelveli</option>
+<option>Erode</option>
+<option>Thanjavur</option>
+<option>Other</option>
+</select>
+</div>
+
+<div>
+<label for="donorCity">City / Town</label>
+<input id="donorCity" required maxlength="50" placeholder="Enter demo city">
+</div>
+
+<div class="full">
+<label>Gender (optional demo field)</label>
+<div class="inline-options">
+<label><input type="radio" name="gender" value="Female"> Female</label>
+<label><input type="radio" name="gender" value="Male"> Male</label>
+<label><input type="radio" name="gender" value="Prefer not to say" checked> Prefer not to say</label>
+</div>
+</div>
+
+<div class="full">
+<label>
+<input type="checkbox" id="donorConsent" required>
+I understand this is a local demo profile and not a real donor service.
+</label>
+</div>
+
+<div class="full actions">
+<button type="submit">Register Donor</button>
+<button type="reset" class="secondary">Reset</button>
+</div>
+
+</form>
+
+<div id="registerMessage" aria-live="polite"></div>
+
+<div class="notice">Demo only: information is saved in this browser using localStorage. It is not shared with other people or devices. The minimum age in this sample form is 18; this is not a medical eligibility check.</div>
+</section>
+
+<!-- DONOR LIST PAGE -->
+<section class="page-section" id="donors">
+<h2>Registered Donor Details</h2>
+<p>Donor profiles registered in this browser will appear here.</p>
+
+<div class="cards">
+<div class="card">
+<strong id="donorCount">0</strong><br>
+Demo profiles
+</div>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Age</th>
+<th>Blood Group</th>
+<th>District</th>
+<th>City</th>
+<th>Gender</th>
+<th>Date</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="donorTable">
+<tr><td colspan="8">No demo donors registered yet.</td></tr>
+</tbody>
+</table>
+</div>
+
+<button class="secondary" onclick="displayDonors()">Refresh List</button>
+
+<p class="small">Only local demo profiles are shown. Do not use this list for medical decisions or emergency contact.</p>
+</section>
+
+<!-- REQUEST PAGE -->
+<section class="page-section" id="requests">
+<h2>Blood Request Details</h2>
+<p>Add a fictional request to demonstrate an HTML form and JavaScript list.</p>
+
+<form id="requestForm">
+
+<div>
+<label for="requester">Requester Name</label>
+<input id="requester" required placeholder="Demo name">
+</div>
+
+<div>
+<label for="requestBlood">Required Blood Group</label>
+<select id="requestBlood" required>
+<option value="">Select</option>
+<option>A+</option>
+<option>A-</option>
+<option>B+</option>
+<option>B-</option>
+<option>AB+</option>
+<option>AB-</option>
+<option>O+</option>
+<option>O-</option>
+</select>
+</div>
+
+<div>
+<label for="requestDistrict">District</label>
+<select id="requestDistrict" required>
+<option value="">Select</option>
+<option>Chennai</option>
+<option>Coimbatore</option>
+<option>Madurai</option>
+<option>Tiruchirappalli</option>
+<option>Salem</option>
+<option>Tirunelveli</option>
+<option>Other</option>
+</select>
+</div>
+
+<div>
+<label for="requestHospital">Hospital Name</label>
+<input id="requestHospital" required placeholder="Demo hospital name">
+</div>
+
+<div class="full actions">
+<button type="submit">Submit Request</button>
+<button type="reset" class="secondary">Reset</button>
+</div>
+
+</form>
+
+<h3>Submitted Demo Requests</h3>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Requester</th>
+<th>Blood Group</th>
+<th>District</th>
+<th>Hospital</th>
+</tr>
+</thead>
+<tbody id="requestTable">
+<tr><td colspan="4">No requests added yet.</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="notice">Do not enter real patient details. In a real system, requests must be handled securely by an authorised service.</div>
+</section>
+
+<!-- DONATION CAMPS PAGE -->
+<section class="page-section" id="camps">
+<h2>Blood Donation Camps</h2>
+<p>Learn where donation camps may be organised.</p>
+
+<div class="cards">
+
+<div class="card">
+<h3>🏥 Government Hospitals</h3>
+<p>Check with the district government hospital for officially announced camps.</p>
+</div>
+
+<div class="card">
+<h3>🎓 Colleges</h3>
+<p>Some colleges organise voluntary blood donation camps with authorised medical teams.</p>
+</div>
+
+<div class="card">
+<h3>🏢 Community Centres</h3>
+<p>Local organisations may announce approved camps in their communities.</p>
+</div>
+
+</div>
+
+<h3>Find a camp</h3>
+<p>For dates, locations and eligibility, contact your district hospital or an authorised blood bank. This project does not contain live camp schedules.</p>
+</section>
+
+<!-- HTML LAB PAGE -->
+<section class="page-section" id="htmlLab">
+<h2>HTML Practical Lab</h2>
+<p>This section demonstrates the HTML checklist topics.</p>
+
+<div class="lab-grid">
+
+<div class="lab-box">
+<h3>1. Document structure and anchor</h3>
+<p>HTML document includes <span class="code-note">doctype</span>, <span class="code-note">html</span>, <span class="code-note">head</span> and <span class="code-note">body</span>.</p>
+<a href="#htmlLab">Example anchor link to HTML Lab</a>
+</div>
+
+<div class="lab-box">
+<h3>2. Text formatting</h3>
+<p><u>Underline</u>, <i>Italic</i>, <em>Emphasis</em>, <strong>Strong</strong>, H<sub>2</sub>O, x<sup>2</sup>.</p>
+</div>
+
+<div class="lab-box">
+<h3>3. Lists</h3>
+<strong>Unordered list</strong>
+<ul>
+<li>A positive</li>
+<li>B positive</li>
+</ul>
+<strong>Ordered list</strong>
+<ol>
+<li>Register</li>
+<li>Review details</li>
+<li>Finish demo</li>
+</ol>
+</div>
+
+<div class="lab-box">
+<h3>4. Table: colspan and rowspan</h3>
+<div class="table-wrap">
+<table>
+<tr><th colspan="2">Blood Group Table</th></tr>
+<tr><th rowspan="2">Examples</th><td>A+</td></tr>
+<tr><td>O+</td></tr>
+</table>
+</div>
+</div>
+
+<div class="lab-box full">
+<h3>5. Form and input types</h3>
+
+<form onsubmit="event.preventDefault();document.getElementById('htmlFormOutput').textContent='Sample form submitted successfully.'">
+
+<div>
+<label>Text box</label>
+<input type="text" placeholder="Text input">
+</div>
+
+<div>
+<label>Number</label>
+<input type="number" placeholder="Number input">
+</div>
+
+<div>
+<label>Date</label>
+<input type="date">
+</div>
+
+<div>
+<label>Password</label>
+<input type="password" placeholder="Password example">
+</div>
+
+<div>
+<label>Drop-down</label>
+<select>
+<option>Select</option>
+<option>HTML</option>
+<option>CSS</option>
+</select>
+</div>
+
+<div>
+<label>Text area</label>
+<textarea rows="2" placeholder="Write a short message"></textarea>
+</div>
+
+<div class="full">
+<label>Radio buttons</label>
+<div class="inline-options">
+<label><input type="radio" name="sampleRadio"> Option 1</label>
+<label><input type="radio" name="sampleRadio"> Option 2</label>
+</div>
+</div>
+
+<div class="full">
+<label>Checkbox</label>
+<label><input type="checkbox"> I agree (sample)</label>
+</div>
+
+<div class="full actions">
+<button type="submit">Submit</button>
+<button type="reset" class="secondary">Reset</button>
+</div>
+
+</form>
+
+<p id="htmlFormOutput" aria-live="polite"></p>
+</div>
+</div>
+</section>
+
+<!-- CSS LAB PAGE -->
+<section class="page-section" id="cssLab">
+<h2>CSS Practical Lab</h2>
+<p>CSS styles this website using an internal CSS block in the document's style element. The following boxes demonstrate common CSS concepts.</p>
+
+<div class="lab-grid">
+
+<div class="lab-box">
+<h3>1. CSS types</h3>
+<p>Inline CSS: <span style="color:#c62828;font-weight:bold">this text uses a style attribute</span>.</p>
+<p>Internal CSS: rules are written inside the head's style element.</p>
+<p>External CSS: rules can be stored in a separate .css file and linked using link.</p>
+</div>
+
+<div class="lab-box">
+<h3>2. Selectors and box model</h3>
+<p>This paragraph is selected by an element selector. CSS box model includes content, padding, border and margin.</p>
+<div style="margin:10px;padding:12px;border:3px solid #c62828">Content + padding + border + margin</div>
+</div>
+
+<div class="lab-box">
+<h3>3. Typography, border and shadow</h3>
+<p style="font-family:Georgia;font-size:20px;font-weight:bold;text-shadow:1px 1px 2px #bbb">Styled sample text</p>
+<div style="border:2px dashed #c62828;box-shadow:3px 3px 8px #aaa;padding:12px">Border and shadow example</div>
+</div>
+
+<div class="lab-box">
+<h3>4. Pseudo-class and display</h3>
+<p>Hover over this button to see its hover pseudo-class.</p>
+<button>Hover example</button>
+<p style="display:inline-block;background:#ffe1e1;padding:5px">inline-block</p>
+<p style="display:block">Block display paragraph</p>
+</div>
+
+<div class="lab-box full">
+<h3>5. Flexbox</h3>
+<div class="flex-demo">
+<div>Flex item 1</div>
+<div>Flex item 2</div>
+<div>Flex item 3</div>
+</div>
+</div>
+
+<div class="lab-box full">
+<h3>6. Grid, gap, merged cell and responsive image</h3>
+<div class="grid-demo">
+<div class="wide">Grid item spanning two columns</div>
+<div>Grid item</div>
+<div>Grid item</div>
+<div>Grid item</div>
+</div>
+<p class="small">The grid uses gap; the wide item uses grid-column span to merge space across two columns.</p>
+<div class="card">
+<div class="demo-image" style="display:grid;place-items:center;font-size:40px">🩸</div>
+<p>Responsive image/container example: width is set to 100% so it adjusts to its parent.</p>
+</div>
+</div>
+
+<div class="lab-box full">
+<h3>7. Media query and keyframes</h3>
+<p>The website uses a media query for small screens. The red box below moves from top to bottom using @keyframes.</p>
+<div class="moving">
+<div>Moving div</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<!-- JAVASCRIPT PAGE -->
+<section class="page-section" id="javascriptLab">
+<h2>JavaScript Number and Conditional Logic</h2>
+<p>Enter a number or year and test the JavaScript functions.</p>
+
+<div class="lab-grid">
+
+<div class="lab-box">
+<h3>Even or Odd</h3>
+<label for="numberCheck">Enter a number</label>
+<input id="numberCheck" type="number" placeholder="Example: 12">
+
+<div class="actions">
+<button onclick="checkEven()">Check Even</button>
+<button onclick="checkOdd()">Check Odd</button>
+<button onclick="checkEvenOdd()">Combined Check</button>
+</div>
+
+<p id="evenOddResult" aria-live="polite"></p>
+</div>
+
+<div class="lab-box">
+<h3>Prime Number</h3>
+<label for="primeNumber">Enter a number</label>
+<input id="primeNumber" type="number" placeholder="Example: 7">
+<button onclick="checkPrime()">Check Prime</button>
+<p id="primeResult" aria-live="polite"></p>
+</div>
+
+<div class="lab-box">
+<h3>Prime Year (number test)</h3>
+<label for="primeYear">Enter a year</label>
+<input id="primeYear" type="number" placeholder="Example: 2027">
+<button onclick="checkYearPrime()">Check Prime Year</button>
+<p id="yearResult" aria-live="polite"></p>
+<p class="small">This exercise checks whether the year number is mathematically prime; it is not a calendar leap-year test.</p>
+</div>
+
+</div>
+</section>
+
+<!-- MINI PROJECTS PAGE -->
+<section class="page-section" id="miniProjects">
+<h2>JavaScript Interactive Mini-Projects</h2>
+
+<div class="lab-grid">
+
+<div class="lab-box">
+<h3>1. Mark Calculator</h3>
+<label>Subject 1</label>
+<input id="mark1" type="number" min="0" max="100">
+
+<label>Subject 2</label>
+<input id="mark2" type="number" min="0" max="100">
+
+<label>Subject 3</label>
+<input id="mark3" type="number" min="0" max="100">
+
+<button onclick="calculateMarks()">Calculate Total and Grade</button>
+<p id="markResult"></p>
+</div>
+
+<div class="lab-box">
+<h3>2. Cricket Scoreboard</h3>
+<p>Runs: <strong id="cricketRuns">0</strong> | Wickets: <strong id="cricketWickets">0</strong></p>
+
+<div class="actions">
+<button onclick="addRun(1)">+1 Run</button>
+<button onclick="addRun(4)">+4 Runs</button>
+<button onclick="addRun(6)">+6 Runs</button>
+<button onclick="addWicket()">Wicket</button>
+<button class="secondary" onclick="resetCricket()">Reset</button>
+</div>
+</div>
+
+<div class="lab-box">
+<h3>3. Badminton Scoreboard</h3>
+<p>Player A: <strong id="badA">0</strong> | Player B: <strong id="badB">0</strong></p>
+
+<div class="actions">
+<button onclick="badmintonPoint('A')">Point A</button>
+<button onclick="badmintonPoint('B')">Point B</button>
+<button class="secondary" onclick="resetBadminton()">Reset</button>
+</div>
+</div>
+
+<div class="lab-box">
+<h3>4. Shopping Cart (push, map, reduce, splice, split)</h3>
+
+<label for="cartItem">Add one product</label>
+<input id="cartItem" placeholder="Example: Notebook">
+<button onclick="addCartItem()">Add using push()</button>
+
+<label for="multiItems">Add multiple products (comma separated)</label>
+<input id="multiItems" placeholder="Book, Pen, Bag">
+<button onclick="addMultipleItems()">Add using split()</button>
+
+<p id="cartList">Cart is empty.</p>
+<p id="cartTotal"></p>
+
+<button class="secondary" onclick="removeCartItem()">Remove last using splice()</button>
+<button class="secondary" onclick="clearCart()">Clear cart</button>
+
+<p class="small">map() displays item names; reduce() calculates the demo total; push() adds; splice() removes; split() separates comma-separated entries.</p>
+</div>
+
+</div>
+</section>
+
+<!-- THANK YOU PAGE -->
+<section class="page-section" id="thanks">
+<div class="hero">
+<div class="drop">❤️</div>
+<h2>Thank You!</h2>
+<p class="lead">Thank you for exploring Blood Donor Finder.</p>
+<p>Awareness, kindness and responsible action can help our community.</p>
+<button onclick="goTo(0)">Back to Home</button>
+</div>
+</section>
+
+</main>
+
+<footer>
+<button id="previousButton" class="secondary" onclick="previousSection()">← Previous</button>
+<div class="progress" id="progressText">Screen 1 of 14</div>
+<button id="nextButton" onclick="nextSection()">Next →</button>
+</footer>
+
+<script>
+
+// NAVIGATION
+const sections = Array.from(document.querySelectorAll('.page-section'));
+let currentSection = 0;
+
+function goTo(index){
+if(index<0 || index>=sections.length) return;
+
+currentSection=index;
+
+sections.forEach((section,i)=>{
+section.classList.toggle('active',i===index);
+});
+
+document.getElementById('progressText').textContent =
+`Screen ${index+1} of ${sections.length}`;
+
+document.getElementById('previousButton').disabled=index===0;
+document.getElementById('nextButton').disabled=index===sections.length-1;
+
+document.querySelectorAll('#topNav button').forEach((b,i)=>{
+b.classList.toggle('active',i===index);
+});
+
+window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function nextSection(){
+if(currentSection<sections.length-1){
+goTo(currentSection+1);
+}
+}
+
+function previousSection(){
+if(currentSection>0){
+goTo(currentSection-1);
+}
+}
+
+goTo(0);
+
+
+// HOSPITAL DETAILS
+const hospitalData={
+'Chennai':'Rajiv Gandhi Government General Hospital – Chennai',
+'Coimbatore':'Coimbatore Medical College Hospital – Coimbatore',
+'Madurai':'Government Rajaji Hospital – Madurai',
+'Tiruchirappalli':'Mahatma Gandhi Memorial Government Hospital – Tiruchirappalli',
+'Salem':'Government Mohan Kumaramangalam Medical College Hospital – Salem',
+'Tirunelveli':'Tirunelveli Medical College Hospital – Tirunelveli'
+};
+
+function showHospital(){
+const d=document.getElementById('hospitalDistrict').value;
+
+document.getElementById('hospitalResult').textContent =
+d ? (hospitalData[d] || 'Please check the official district hospital directory for verified details.')
+: 'Choose a district to view information.';
+}
+
+
+// BLOOD BANK DETAILS
+function showBank(){
+const d=document.getElementById('bankDistrict').value;
+
+document.getElementById('bankResult').textContent =
+d ? `For ${d}, contact the district government hospital or an authorised blood bank directly. This demo does not show live stock.`
+: 'Choose a district for guidance.';
+}
+
+
+// DONOR REGISTRATION
+const DONOR_KEY='bloodDonorFinderDemoProfiles';
+
+function getDonors(){
+try{
+return JSON.parse(localStorage.getItem(DONOR_KEY)||'[]');
+}
+catch(e){
+return [];
+}
+}
+
+function saveDonors(data){
+localStorage.setItem(DONOR_KEY,JSON.stringify(data));
+}
+
+document.getElementById('donorDate').value =
+new Date().toISOString().slice(0,10);
+
+document.getElementById('donorForm').addEventListener('submit',function(e){
+
+e.preventDefault();
+
+const age=Number(document.getElementById('donorAge').value);
+
+if(age<18||age>100){
+document.getElementById('registerMessage').innerHTML =
+'<p class="error">Enter an age from 18 to 100 for this demo form.</p>';
+return;
+}
+
+const donor={
+name:document.getElementById('donorName').value.trim(),
+age:age,
+date:document.getElementById('donorDate').value,
+blood:document.getElementById('donorBlood').value,
+district:document.getElementById('donorDistrict').value,
+city:document.getElementById('donorCity').value.trim(),
+gender:document.querySelector('input[name="gender"]:checked')?.value||'Not specified',
+status:'Demo Registered'
+};
+
+if(!donor.name||!donor.city){
+document.getElementById('registerMessage').innerHTML =
+'<p class="error">Please complete all required fields.</p>';
+return;
+}
+
+const donors=getDonors();
+donors.push(donor);
+saveDonors(donors);
+
+this.reset();
+
+document.getElementById('donorDate').value =
+new Date().toISOString().slice(0,10);
+
+document.getElementById('registerMessage').innerHTML =
+'<div class="success">Demo donor profile registered. It is now visible in the Donor List on this browser.</div>';
+
+displayDonors();
+goTo(6);
+
+});
+
+
+// DISPLAY DONORS
+function displayDonors(){
+
+const donors=getDonors();
+
+document.getElementById('donorCount').textContent=donors.length;
+
+const tbody=document.getElementById('donorTable');
+tbody.innerHTML='';
+
+if(!donors.length){
+tbody.innerHTML='<tr><td colspan="8">No demo donors registered yet.</td></tr>';
+return;
+}
+
+donors.forEach(d=>{
+
+const tr=document.createElement('tr');
+
+[d.name,d.age,d.blood,d.district,d.city,d.gender,d.date,d.status].forEach(value=>{
+
+const td=document.createElement('td');
+td.textContent=value;
+tr.appendChild(td);
+
+});
+
+tbody.appendChild(tr);
+
+});
+
+}
+
+displayDonors();
+
+
+// BLOOD REQUEST DETAILS
+const REQUEST_KEY='bloodDonorFinderDemoRequests';
+
+function getRequests(){
+try{
+return JSON.parse(localStorage.getItem(REQUEST_KEY)||'[]');
+}
+catch(e){
+return [];
+}
+}
+
+function displayRequests(){
+
+const rows=getRequests();
+const body=document.getElementById('requestTable');
+
+body.innerHTML='';
+
+if(!rows.length){
+body.innerHTML='<tr><td colspan="4">No requests added yet.</td></tr>';
+return;
+}
+
+rows.forEach(r=>{
+
+const tr=document.createElement('tr');
+
+[r.name,r.blood,r.district,r.hospital].forEach(v=>{
+
+const td=document.createElement('td');
+td.textContent=v;
+tr.appendChild(td);
+
+});
+
+body.appendChild(tr);
+
+});
+
+}
+
+document.getElementById('requestForm').addEventListener('submit',function(e){
+
+e.preventDefault();
+
+const rows=getRequests();
+
+rows.push({
+name:document.getElementById('requester').value.trim(),
+blood:document.getElementById('requestBlood').value,
+district:document.getElementById('requestDistrict').value,
+hospital:document.getElementById('requestHospital').value.trim()
+});
+
+localStorage.setItem(REQUEST_KEY,JSON.stringify(rows));
+
+this.reset();
+
+displayRequests();
+
+});
+
+displayRequests();
+
+
+// EVEN AND ODD NUMBER
+function getNumber(id){
+const value=document.getElementById(id).value;
+return value===''?null:Number(value);
+}
+
+function checkEven(){
+
+const n=getNumber('numberCheck');
+
+document.getElementById('evenOddResult').textContent =
+n===null?'Enter a number.':
+(n%2===0?'The number is Even.':'The number is not Even.');
+
+}
+
+function checkOdd(){
+
+const n=getNumber('numberCheck');
+
+document.getElementById('evenOddResult').textContent =
+n===null?'Enter a number.':
+(n%2!==0?'The number is Odd.':'The number is not Odd.');
+
+}
+
+function checkEvenOdd(){
+
+const n=getNumber('numberCheck');
+
+document.getElementById('evenOddResult').textContent =
+n===null?'Enter a number.':
+(n%2===0?'Even number':'Odd number');
+
+}
+
+
+// PRIME NUMBER
+function isPrime(n){
+
+if(!Number.isInteger(n)||n<2){
+return false;
+}
+
+for(let i=2;i<=Math.sqrt(n);i++){
+if(n%i===0){
+return false;
+}
+}
+
+return true;
+
+}
+
+function checkPrime(){
+
+const n=getNumber('primeNumber');
+
+document.getElementById('primeResult').textContent =
+n===null?'Enter a number.':
+(isPrime(n)?`${n} is a Prime Number.`:`${n} is not a Prime Number.`);
+
+}
+
+function checkYearPrime(){
+
+const y=getNumber('primeYear');
+
+document.getElementById('yearResult').textContent =
+y===null?'Enter a year.':
+(isPrime(y)?`${y} is a prime number.`:`${y} is not a prime number.`);
+
+}
+
+
+// MARK CALCULATOR
+function calculateMarks(){
+
+const vals=['mark1','mark2','mark3'].map(id=>getNumber(id));
+
+const out=document.getElementById('markResult');
+
+if(vals.some(v=>v===null||v<0||v>100)){
+out.textContent='Enter all three marks between 0 and 100.';
+return;
+}
+
+const total=vals.reduce((sum,v)=>sum+v,0);
+const avg=total/vals.length;
+
+const grade =
+avg>=90?'A':
+avg>=75?'B':
+avg>=50?'C':'D';
+
+out.textContent =
+`Total: ${total}/300 | Average: ${avg.toFixed(2)} | Grade: ${grade}`;
+
+}
+
+
+// CRICKET SCOREBOARD
+let cricketRunCount=0;
+let cricketWicketCount=0;
+
+function updateCricket(){
+
+document.getElementById('cricketRuns').textContent=cricketRunCount;
+document.getElementById('cricketWickets').textContent=cricketWicketCount;
+
+}
+
+function addRun(n){
+
+if(cricketWicketCount<10){
+cricketRunCount+=n;
+updateCricket();
+}
+
+}
+
+function addWicket(){
+
+if(cricketWicketCount<10){
+cricketWicketCount++;
+updateCricket();
+}
+
+}
+
+function resetCricket(){
+
+cricketRunCount=0;
+cricketWicketCount=0;
+updateCricket();
+
+}
+
+
+// BADMINTON SCOREBOARD
+let scoreA=0;
+let scoreB=0;
+
+function badmintonPoint(player){
+
+if(player==='A'){
+scoreA++;
+}
+else{
+scoreB++;
+}
+
+document.getElementById('badA').textContent=scoreA;
+document.getElementById('badB').textContent=scoreB;
+
+}
+
+function resetBadminton(){
+
+scoreA=0;
+scoreB=0;
+
+document.getElementById('badA').textContent=0;
+document.getElementById('badB').textContent=0;
+
+}
+
+
+// SHOPPING CART
+let cart=[];
+
+function renderCart(){
+
+const list=document.getElementById('cartList');
+
+list.textContent =
+cart.length
+? cart.map((item,index)=>`${index+1}. ${item}`).join(' | ')
+: 'Cart is empty.';
+
+const total=cart.reduce((sum)=>sum+1,0);
+
+document.getElementById('cartTotal').textContent =
+`Demo item count using reduce(): ${total}`;
+
+}
+
+function addCartItem(){
+
+const input=document.getElementById('cartItem');
+const name=input.value.trim();
+
+if(!name){
+return;
+}
+
+cart.push(name);
+input.value='';
+
+renderCart();
+
+}
+
+function addMultipleItems(){
+
+const input=document.getElementById('multiItems');
+
+const names=input.value
+.split(',')
+.map(item=>item.trim())
+.filter(Boolean);
+
+cart.push(...names);
+
+input.value='';
+
+renderCart();
+
+}
+
+function removeCartItem(){
+
+if(cart.length){
+cart.splice(cart.length-1,1);
+}
+
+renderCart();
+
+}
+
+function clearCart(){
+
+cart=[];
+
+renderCart();
+
+}
+
+renderCart();
+
+</script>
+
+</body>
+</html>
